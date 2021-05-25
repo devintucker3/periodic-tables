@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
+import {createReservation} from "../utils/api";
 
 function NewReservation() {
     const history = useHistory();
@@ -11,44 +12,54 @@ function NewReservation() {
         mobile_number: "",
         reservation_date: "",
         reservation_time: "",
-        party_size: 0,
+        party_size: 1,
     });
     const [errors, setErrors] = useState([]);
+    const [apiError, setApiError] = useState(null);
 
-    function validDate() {
-        const reserve = new Date(formData.reservation_date);
+    function validDate(errorsFound) {
+        const reserve = new Date(`${formData.reservation_date}T${formData.reservation_time}:00.000`);
 
         const today = new Date();
-        const errorsFound = [];
+
+        if (reserve.getDay() === 2) {
+            errorsFound.push({message: "Reservations cannot be made on a Tuesday (Restaurant is closed)."});
+        }
 
         if (reserve < today) {
             errorsFound.push({message: "Reservations cannot be made in the past."});
         }
 
+        if (reserve.getHours() < 10 || (reserve.getHours() === 10 && reserve.getMinutes() < 30)) {
+            errorsFound.push({message: "Reservation cannot be made: Restaurant is not open until 10:30AM."});
+        } else if (reserve.getHours() > 22 || (reserve.getHours() === 22 && reserve.getMinutes() >= 30)) {
+            errorsFound.push({message: "Reservation cannot be made: Restaurant is closed after 10:30PM."});
+        } else if (reserve.getHours() > 21 || (reserve.getHours() === 21 && reserve.getMinutes() > 30)) {
+            errorsFound.push({message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)."});
+        }
+
+        return errorsFound.length === 0;
+    }
+    
+    function changeHandler({target}) {
+        setFormData({...formData, [target.name]: target.value});
+    }
+    
+    function submitHandler(event) {
+        event.preventDefault();
+        const abortController = new AbortController();
         
-        if (reserve.getDay() === 2) {
-            errorsFound.push({message: "Reservations cannot be made on a Tuesday (Restaurant is closed)."});
+        const errorsFound = [];
+        
+        if (validDate(errorsFound)) {
+            createReservation(formData, abortController.signal)
+                .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
+                .catch(setApiError)
         }
 
         setErrors(errorsFound);
 
-        if (errorsFound.length > 0) {
-            return false
-        }
-
-        return true;
-    }
-
-    function changeHandler({target}) {
-        setFormData({...formData, [target.name]: target.value});
-    }
-
-    function submitHandler(event) {
-        event.preventDefault();
-
-        if (validDate) {
-            history.push(`/dashboard?date=${formData.reservation_date}`);
-        }
+        return () => abortController.signal;
     }
 
     const error = () => {
@@ -58,6 +69,7 @@ function NewReservation() {
     return (
         <form>
             {error()}
+            <ErrorAlert error={apiError} />
             
             <label htmlFor="first_name">First Name</label>
             <input name="first_name" id="first_name" type="text" onChange={changeHandler} value={formData.first_name} required />
