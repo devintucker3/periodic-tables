@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import React from "react";
 import ErrorAlert from "../layout/ErrorAlert";
-import { useHistory } from "react-router";
+import { useHistory } from "react-router-dom";
 import {previous, today, next} from "../utils/date-time";
+import Reservations from "./Reservations";
+import Tables from "./Tables";
 
 /**
  * Defines the dashboard page.
@@ -10,21 +11,15 @@ import {previous, today, next} from "../utils/date-time";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ date }) {
+function Dashboard({ date, reservations, reservationsError, tables, tableError }) {
   const history = useHistory();
 
-  const [reservations, setReservations] = useState([]);
-  const [reservationsError, setReservationsError] = useState(null);
+  const reservationList = () => {
+    return reservations.map(reservation => <Reservations key={reservation.reservation_id} reservation={reservation} />);
+  };
 
-  useEffect(loadDashboard, [date]);
-
-  function loadDashboard() {
-    const abortController = new AbortController();
-    setReservationsError(null);
-    listReservations({ date }, abortController.signal)
-      .then(setReservations)
-      .catch(setReservationsError);
-    return () => abortController.abort();
+  const tableList = () => {
+    return tables.map(table => <Tables key={table.table_id} table={table} />);
   }
 
   return (
@@ -34,7 +29,46 @@ function Dashboard({ date }) {
         <h4 className="mb-0">Reservations for {date}</h4>
       </div>
       <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Mobile Number</th>
+            <th scope="col">Time</th>
+            <th scope="col">People</th>
+            <th scope="col">Status</th>
+            <th scope="col">Table</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {reservationList()}
+        </tbody>
+      </table>
+
+      <div className="d-md-flex mb-3">
+        <h4 className="mb-0">Tables</h4>
+      </div>
+
+      <ErrorAlert error={tableError} />
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Table Name</th>
+            <th scope="col">Capacity</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {tableList()}
+        </tbody>
+      </table>
 
       <button type="button" onClick={() => history.push(`/dashboard?date=${previous(date)}`)}>Previous</button>
       <button type="button" onClick={() => history.push(`/dashboard?date=${today()}`)}>Today</button>

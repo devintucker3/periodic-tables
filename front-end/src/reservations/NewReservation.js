@@ -12,7 +12,7 @@ function NewReservation() {
         mobile_number: "",
         reservation_date: "",
         reservation_time: "",
-        party_size: 1,
+        people: 1,
     });
     const [errors, setErrors] = useState([]);
     const [apiError, setApiError] = useState(null);
@@ -86,8 +86,8 @@ function NewReservation() {
             <label htmlFor="reservation_time">Reservation Time</label>
             <input name="reservation_time" id="reservation_time" type="time" onChange={changeHandler} value={formData.reservation_time} required />
 
-            <label htmlFor="party_size">Party Size</label>
-            <input name="party_size" id="party_size" type="number" min="1" onChange={changeHandler} value={formData.party_size} required />
+            <label htmlFor="people">People</label>
+            <input name="people" id="people" type="number" min="1" onChange={changeHandler} value={formData.people} required />
 
             <button type="submit" onClick={submitHandler}>Submit</button>
             <button type="button" onClick={history.goBack}>Cancel</button>
