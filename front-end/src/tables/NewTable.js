@@ -9,7 +9,7 @@ function NewTable() {
         table_name: "",
         capacity: 1,
     })
-    const [errors, setErrors] = useState([]);
+    const [error, setError] = useState([]);
 
     function validInput() {
         let errorFound = null;
@@ -20,7 +20,7 @@ function NewTable() {
             errorFound = {message: "Table name must be at least 2 characters."};
         }
 
-        setErrors(errorFound);
+        setError(errorFound);
 
         return errorFound !== null;
     }
@@ -39,7 +39,7 @@ function NewTable() {
 
     return (
         <form>
-            <ErrorAlert error={errors} />
+            <ErrorAlert error={error} />
 
             <label htmlFor="table_name">Table Name</label>
             <input name="table_name" id="table_name" type="text" minLength="2" onChange={changeHandler} value={formData.table_name} required />

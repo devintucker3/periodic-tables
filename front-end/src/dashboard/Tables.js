@@ -1,9 +1,9 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
 
-function Tables({ tables }) {
+function Tables({ table }) {
     const history = useHistory()
-    if (!tables) return null;
+    if (!table) return null;
 
     function finishHandler() {
         if (window.confirm("Is this table rady to seat new guests? This cannot be undone.")) {
@@ -13,14 +13,14 @@ function Tables({ tables }) {
 
     return (
         <tr>
-            <th scope="row">{tables.table_id}</th>
+            <th scope="row">{table.table_id}</th>
 
-            <td>{tables.table_name}</td>
-            <td>{tables.capacity}</td>
-            <td data-table-id-status={tables.table_id}>{tables.status}</td>
+            <td>{table.table_name}</td>
+            <td>{table.capacity}</td>
+            <td data-table-id-status={table.table_id}>{table.status}</td>
 
-            {tables.status === "occupied" && 
-                <td data-table-id-finish={tables.table_id}>
+            {table.status === "occupied" && 
+                <td data-table-id-finish={table.table_id}>
                     <button type="button" onClick={finishHandler}>Finish</button>
                 </td>
             }

@@ -30,10 +30,13 @@ function Routes() {
 
   function loadDashboard() {
     const abortController = new AbortController();
+
     setReservationsError(null);
+    
     listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
+
     return () => abortController.abort();
   }
   

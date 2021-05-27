@@ -1,23 +1,39 @@
 import React from "react";
 
-function Reservations({ reservations }) {
-    if (!reservations || reservations.status === "finished") return null;
+function Reservations({ reservation }) {
+    if (!reservation || reservation.status === "finished") return null;
+
+    function cancelHandler() {
+        if (window.confirm("Do you want to cancel this reservation? This cannot be undone.")) {
+
+            window.location.reload();
+        }
+    }
 
     return (
         <tr>
-            <th scope="row">{reservations.reservation_id}</th>
+            <th scope="row">{reservation.reservation_id}</th>
 
-            <td>{reservations.first_name}</td>
-            <td>{reservations.last_name}</td>
-            <td>{reservations.mobile_number}</td>
-            <td>{reservations.reservation_time}</td>
-            <td>{reservations.people}</td>
-            <td>{reservations.status}</td>
-            <td data-reservation-id-status={reservations.reservation_id}>{reservations.status}</td>
-            
-            {reservations.status === "booked" &&
+            <td>{reservation.first_name}</td>
+            <td>{reservation.last_name}</td>
+            <td>{reservation.mobile_number}</td>
+            <td>{reservation.reservation_time}</td>
+            <td>{reservation.people}</td>
+            <td>{reservation.status}</td>
+            <td data-reservation-id-status={reservation.reservation_id}>{reservation.status}</td>
+            <td>
+                <a href={`/reservations/${reservation.reservation_id}/edit`}>
+                    <button type="button">Edit</button>
+                </a>
+            </td>
+            <td>
+                <button type="button" onClick={cancelHandler} data-reservation-id-cancel={reservation.reservation_id}>
+                    Cancel
+                </button>
+            </td>
+            {reservation.status === "booked" &&
                 <td>
-                    <a href={`/reservations/${reservations.reservation_id}/seat`}>
+                    <a href={`/reservations/${reservation.reservation_id}/seat`}>
                         <button type="button">Seat</button>
                     </a>
                 </td>

@@ -14,31 +14,31 @@ function NewReservation() {
         reservation_time: "",
         people: 1,
     });
-    const [errors, setErrors] = useState([]);
+    const [error, setError] = useState([]);
     const [apiError, setApiError] = useState(null);
 
-    function validDate(errorsFound) {
+    function validDate(errorFound) {
         const reserve = new Date(`${formData.reservation_date}T${formData.reservation_time}:00.000`);
 
         const today = new Date();
 
         if (reserve.getDay() === 2) {
-            errorsFound.push({message: "Reservations cannot be made on a Tuesday (Restaurant is closed)."});
+            errorFound.push({message: "Reservations cannot be made on a Tuesday (Restaurant is closed)."});
         }
 
         if (reserve < today) {
-            errorsFound.push({message: "Reservations cannot be made in the past."});
+            errorFound.push({message: "Reservations cannot be made in the past."});
         }
 
         if (reserve.getHours() < 10 || (reserve.getHours() === 10 && reserve.getMinutes() < 30)) {
-            errorsFound.push({message: "Reservation cannot be made: Restaurant is not open until 10:30AM."});
+            errorFound.push({message: "Reservation cannot be made: Restaurant is not open until 10:30AM."});
         } else if (reserve.getHours() > 22 || (reserve.getHours() === 22 && reserve.getMinutes() >= 30)) {
-            errorsFound.push({message: "Reservation cannot be made: Restaurant is closed after 10:30PM."});
+            errorFound.push({message: "Reservation cannot be made: Restaurant is closed after 10:30PM."});
         } else if (reserve.getHours() > 21 || (reserve.getHours() === 21 && reserve.getMinutes() > 30)) {
-            errorsFound.push({message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)."});
+            errorFound.push({message: "Reservation cannot be made: Reservation must be made at least an hour before closing (10:30PM)."});
         }
 
-        return errorsFound.length === 0;
+        return errorFound.length === 0;
     }
     
     function changeHandler({target}) {
@@ -49,26 +49,26 @@ function NewReservation() {
         event.preventDefault();
         const abortController = new AbortController();
         
-        const errorsFound = [];
+        const errorFound = [];
         
-        if (validDate(errorsFound)) {
+        if (validDate(errorFound)) {
             createReservation(formData, abortController.signal)
                 .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
                 .catch(setApiError);
         }
 
-        setErrors(errorsFound);
+        setError(errorFound);
 
         return () => abortController.signal;
     }
 
-    const error = () => {
-        return errors.map((error, index) => <ErrorAlert key={index} error={error} />);
+    const errorList = () => {
+        return error.map((error, index) => <ErrorAlert key={index} error={error} />);
     }
 
     return (
         <form>
-            {error()}
+            {errorList()}
             <ErrorAlert error={apiError} />
             
             <label htmlFor="first_name">First Name</label>
