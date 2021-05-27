@@ -8,6 +8,7 @@ import NewReservation from "../reservations/NewReservation";
 import useQuery from "../utils/useQuery";
 import NewTable from "../tables/NewTable";
 import SeatAtTable from "../reservations/SeatAtTable";
+import Search from "../search/Search";
 
 /**
  * Defines all the routes for the application.
@@ -61,6 +62,9 @@ function Routes() {
           tables={tables}
           tableError={tableError}  
         />
+      </Route>
+      <Route path="/search">
+        <Search />
       </Route>
       <Route>
         <NotFound />

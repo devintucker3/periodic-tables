@@ -54,7 +54,7 @@ function NewReservation() {
         if (validDate(errorsFound)) {
             createReservation(formData, abortController.signal)
                 .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
-                .catch(setApiError)
+                .catch(setApiError);
         }
 
         setErrors(errorsFound);
