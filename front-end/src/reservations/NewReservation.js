@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
 import {createReservation} from "../utils/api";
 
-function NewReservation() {
+function NewReservation({ edit, reservations}) {
     const history = useHistory();
+    const {reservation_id} = useParams();
 
     const [formData, setFormData] = useState({
         first_name: "",
@@ -17,6 +18,28 @@ function NewReservation() {
     const [error, setError] = useState([]);
     const [apiError, setApiError] = useState(null);
 
+    // For editing a reservation
+    if (edit) {
+        if (!reservations || !reservation_id) return null
+
+        const reservationFound = reservations.find(reservation => reservation.reservation_id === Number(reservation_id));
+
+        if (!reservationFound || reservationFound.status !== "booked") {
+            return <p>Only booked reservations can be edited.</p>
+        }
+
+        setFormData({
+            reservation_id: reservationFound.reservation_id,
+            first_name: reservationFound.first_name,
+            last_name: reservationFound.last_name,
+            mobile_number: reservationFound.mobile_number,
+            reservation_date: reservationFound.reservation_date,
+            reservation_time: reservationFound.reservation_time,
+            people: reservationFound.people,
+        })
+    }
+
+    // validating if the date and time is not a day in the past, or on a Tuesday
     function validDate(errorFound) {
         const reserve = new Date(`${formData.reservation_date}T${formData.reservation_time}:00.000`);
 
@@ -62,6 +85,7 @@ function NewReservation() {
         return () => abortController.signal;
     }
 
+    // iterating through errors to make a list
     const errorList = () => {
         return error.map((error, index) => <ErrorAlert key={index} error={error} />);
     }

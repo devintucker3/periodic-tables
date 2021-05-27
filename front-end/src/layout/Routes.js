@@ -45,18 +45,27 @@ function Routes() {
       <Route exact={true} path="/">
         <Redirect to={"/dashboard"} />
       </Route>
+
       <Route exact={true} path="/reservations">
         <Redirect to={"/dashboard"} />
       </Route>
+
       <Route path="/reservations/new">
         <NewReservation />
       </Route>
+
+      <Route path="/reservations/:reservation_id/edit">
+        <NewReservation edit={true} reservations={reservations} />
+      </Route>
+
       <Route path="/reservations/:reservation_id/seat">
         <SeatAtTable reservations={reservations} tables={tables} />
       </Route>
+
       <Route path="/tables/new">
         <NewTable />
       </Route>
+
       <Route path="/dashboard">
         <Dashboard
           date={date ? date : today()}
@@ -66,9 +75,11 @@ function Routes() {
           tableError={tableError}  
         />
       </Route>
+
       <Route path="/search">
         <Search />
       </Route>
+
       <Route>
         <NotFound />
       </Route>
