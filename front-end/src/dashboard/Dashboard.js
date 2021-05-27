@@ -30,7 +30,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError }
       </div>
       <ErrorAlert error={reservationsError} />
 
-      <table class="table">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">ID</th>
@@ -55,7 +55,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError }
 
       <ErrorAlert error={tableError} />
 
-      <table class="table">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">ID</th>

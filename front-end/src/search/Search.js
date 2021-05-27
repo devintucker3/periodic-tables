@@ -44,8 +44,8 @@ function Search() {
                 <button type="submit" onClick={submitHandler}>Find</button>
             </form>
 
-            <table class="table">
-                <thead class="thead-light">
+            <table className="table">
+                <thead className="thead-light">
                     <tr>
                         <th scope="col">Id</th>
                         <th scope="col">First Name</th>

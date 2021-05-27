@@ -20,6 +20,7 @@ import Search from "../search/Search";
 function Routes() {
   const query = useQuery();
   const date = query.get("date");
+  console.log(date)
 
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
@@ -33,13 +34,13 @@ function Routes() {
 
     setReservationsError(null);
     
-    listReservations({ date }, abortController.signal)
+    listReservations({ date: date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
 
     return () => abortController.abort();
   }
-  
+  console.log(reservations);
   return (
     <Switch>
       <Route exact={true} path="/">
