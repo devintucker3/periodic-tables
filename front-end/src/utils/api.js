@@ -122,4 +122,21 @@
      []
    );
  }
+
+ //update reservation
+ export async function updateReservation(reservation_id, status, signal) {
+  const url = `${API_BASE_URL}/reservations/${reservation_id}/status`;
+
+  const options = { method: "PUT", headers, body: JSON.stringify({data: {status: status}}), signal};
+
+  return await fetch(url, options);
+}
  
+//finished table ready for new reservation
+
+export async function tableFinished(table_id, signal) {
+  const url = `${API_BASE_URL}/tables/${table_id}/seat`;
+  const body = JSON.stringify({data: {table_id: table_id}});
+
+  return await fetch(url, {headers, signal, method: "DELETE", body});
+}

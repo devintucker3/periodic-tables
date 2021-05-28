@@ -11,15 +11,36 @@ import Tables from "./Tables";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ date, reservations, reservationsError, tables, tableError }) {
+function Dashboard({ date, reservations, reservationsError, tables, tableError, reloadDashboard }) {
   const history = useHistory();
 
+  function clickHandler({target}) {
+    let newDate;
+    let useDate;
+
+    if (!date) {
+      useDate = today();
+    } else {
+      useDate = date;
+    }
+
+    if (target.name === "previous") {
+      newDate = previous(useDate);
+    } else if (target.name === "next") {
+      newDate = next(useDate);
+    } else {
+      newDate = today();
+    }
+
+    history.push(`/dashboard?date=${newDate}`);
+  }
+
   const reservationList = () => {
-    return reservations.map(reservation => <Reservations key={reservation.reservation_id} reservation={reservation} />);
+    return reservations.map(reservation => <Reservations key={reservation.reservation_id} reservation={reservation} reloadDashboard={reloadDashboard}/>);
   };
 
   const tableList = () => {
-    return tables.map(table => <Tables key={table.table_id} table={table} />);
+    return tables.map(table => <Tables key={table.table_id} table={table} reloadDashboard={reloadDashboard} />);
   }
 
   return (
@@ -37,6 +58,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError }
             <th scope="col">First Name</th>
             <th scope="col">Last Name</th>
             <th scope="col">Mobile Number</th>
+            <th scope="col">Date</th>
             <th scope="col">Time</th>
             <th scope="col">People</th>
             <th scope="col">Status</th>
@@ -70,9 +92,9 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError }
         </tbody>
       </table>
 
-      <button type="button" onClick={() => history.push(`/dashboard?date=${previous(date)}`)}>Previous</button>
-      <button type="button" onClick={() => history.push(`/dashboard?date=${today()}`)}>Today</button>
-      <button type="button" onClick={() => history.push(`/dashboard?date=${next(date)}`)}>Next</button>
+      <button type="button" name="previous" onClick={clickHandler}>Previous</button>
+      <button type="button" name="today" onClick={clickHandler}>Today</button>
+      <button type="button" name="next" onClick={clickHandler}>Next</button>
       
     </main> 
   );

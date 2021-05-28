@@ -1,13 +1,19 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
+import { updateReservation, tableFinished } from "../utils/api";
 
-function Tables({ table }) {
-    const history = useHistory()
+function Tables({ table, reloadDashboard }) {
     if (!table) return null;
 
     function finishHandler() {
         if (window.confirm("Is this table rady to seat new guests? This cannot be undone.")) {
-            history.push("/dashboard");
+            const abortController = new AbortController();
+            const reservation_id = table.reservation_id;
+
+            tableFinished(table.table_id, abortController.signal)
+                .then(() => updateReservation(reservation_id, "finished", abortController.signal))
+                .then(reloadDashboard);
+
+            return () => abortController.abort();
         }
     }
 
@@ -18,6 +24,7 @@ function Tables({ table }) {
             <td>{table.table_name}</td>
             <td>{table.capacity}</td>
             <td data-table-id-status={table.table_id}>{table.status}</td>
+            <td>{table.reservation_id ? table.reservation_id : "--"}</td>
 
             {table.status === "occupied" && 
                 <td data-table-id-finish={table.table_id}>

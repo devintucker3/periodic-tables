@@ -39,7 +39,7 @@ function Search() {
 
                 <label htmlFor="mobile_number">Enter a customer's phone number:</label>
 
-                <input name="mobile_number" id="mobile_number" type="tel" onChange={changeHandler} value={mobileNumber} required />
+                <input name="mobile_number" id="mobile_number" type="text" onChange={changeHandler} value={mobileNumber} required />
 
                 <button type="submit" onClick={submitHandler}>Find</button>
             </form>

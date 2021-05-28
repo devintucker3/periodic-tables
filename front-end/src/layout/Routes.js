@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from "react";
-import {listReservations} from "../utils/api";
+import React, { useState, useEffect } from "react";
+import { listReservations, listTables } from "../utils/api";
 import { Redirect, Route, Switch } from "react-router-dom";
 import Dashboard from "../dashboard/Dashboard";
 import NotFound from "./NotFound";
@@ -19,28 +19,38 @@ import Search from "../search/Search";
  */
 function Routes() {
   const query = useQuery();
-  const date = query.get("date");
-  console.log(date)
+  const date = query.get("date") ? query.get("date") : today();
 
   const [reservations, setReservations] = useState([]);
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([]);
   const [tableError, setTableError] = useState(null);
 
-  useEffect(loadDashboard, [date]);
+  useEffect(reloadDashboard, [date]);
 
-  function loadDashboard() {
+  function reloadDashboard() {
     const abortController = new AbortController();
 
     setReservationsError(null);
-    
+    setTableError(null);
+
     listReservations({ date: date }, abortController.signal)
+      .then((reservations) =>
+        reservations.sort((a, b) =>
+          a.reservation_time < b.reservation_time ? -1 : 1
+        )
+      )
       .then(setReservations)
       .catch(setReservationsError);
 
+    listTables(abortController.signal)
+      .then(tables => tables.sort((a, b) => a.table_id - b.table_id))
+      .then(setTables)
+      .catch(setTableError);
+
     return () => abortController.abort();
   }
-  console.log(reservations);
+
   return (
     <Switch>
       <Route exact={true} path="/">
@@ -60,7 +70,7 @@ function Routes() {
       </Route>
 
       <Route path="/reservations/:reservation_id/seat">
-        <SeatAtTable reservations={reservations} tables={tables} />
+        <SeatAtTable reservations={reservations} tables={tables} reloadDashboard={reloadDashboard} />
       </Route>
 
       <Route path="/tables/new">
@@ -69,11 +79,12 @@ function Routes() {
 
       <Route path="/dashboard">
         <Dashboard
-          date={date ? date : today()}
+          date={date}
           reservations={reservations}
           reservationsError={reservationsError}
           tables={tables}
-          tableError={tableError}  
+          tableError={tableError}
+          reloadDashboard={reloadDashboard}
         />
       </Route>
 
