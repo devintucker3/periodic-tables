@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
+import {createTable} from "../utils/api";
+import {today} from "../utils/date-time";
 
-function NewTable() {
+function NewTable({reloadDashboard}) {
     const history = useHistory();
 
     const [formData, setFormData] = useState({
         table_name: "",
-        capacity: 1,
+        capacity: "",
     })
-    const [error, setError] = useState([]);
+    const [error, setError] = useState(null);
 
     function validInput() {
         let errorFound = null;
@@ -22,19 +24,26 @@ function NewTable() {
 
         setError(errorFound);
 
-        return errorFound !== null;
+        return errorFound === null;
     }
 
     function changeHandler({target}) {
-        setFormData({...formData, [target.name]: target.value});
+        setFormData({...formData, [target.name]: target.name === "capacity" ? Number(target.value) : target.value});
     }
 
     function submitHandler(event) {
         event.preventDefault();
+        const abortController = new AbortController();
 
         if (validInput()) {
-            history.push("/dashboard");
+            createTable(formData, abortController.signal)
+                .then(() => history.push(`/dashboard?date=${today()}`))
+                .then(reloadDashboard)
+                .then(() => history.push("/dashboard"))
+                .catch(setError)
         }
+
+        return () => abortController.abort();
     }
 
     return (
@@ -42,10 +51,10 @@ function NewTable() {
             <ErrorAlert error={error} />
 
             <label htmlFor="table_name">Table Name</label>
-            <input name="table_name" id="table_name" type="text" minLength="2" onChange={changeHandler} value={formData.table_name} required />
+            <input name="table_name" id="table_name" type="text" minLength={2} onChange={changeHandler} value={formData.table_name} required />
 
             <label htmlFor="capacity">Capacity</label>
-            <input name="capacity" id="capacity" type="number" onChange={changeHandler} value={formData.capacity} required />
+            <input name="capacity" id="capacity" type="number" min={1} onChange={changeHandler} value={formData.capacity} required />
 
             <button type="submit" onClick={submitHandler}>Submit</button>
             <button type="button" onClick={history.goBack}>Cancel</button>

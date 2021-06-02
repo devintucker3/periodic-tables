@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
-import {createReservation} from "../utils/api";
+import {createReservation, editReservation} from "../utils/api";
 
-function NewReservation({ edit, reservations}) {
+function NewReservation({ edit, reservations, reloadDashboard}) {
     const history = useHistory();
     const {reservation_id} = useParams();
 
@@ -13,31 +13,36 @@ function NewReservation({ edit, reservations}) {
         mobile_number: "",
         reservation_date: "",
         reservation_time: "",
-        people: 1,
+        people: "",
     });
     const [error, setError] = useState([]);
     const [apiError, setApiError] = useState(null);
 
     // For editing a reservation
-    if (edit) {
-        if (!reservations || !reservation_id) return null
+    useEffect(() => {
+        if (edit) {
+            if (!reservations || !reservation_id) return null
+    
+            const reservationFound = reservations.find(reservation => reservation.reservation_id === Number(reservation_id));
+    
+            if (!reservationFound || reservationFound.status !== "booked") {
+                return <p>Only booked reservations can be edited.</p>
+            }
 
-        const reservationFound = reservations.find(reservation => reservation.reservation_id === Number(reservation_id));
-
-        if (!reservationFound || reservationFound.status !== "booked") {
-            return <p>Only booked reservations can be edited.</p>
+            const date = new Date(reservationFound.reservation_date);
+            const dateToString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getDate}`;
+            console.log(dateToString);
+    
+            setFormData({
+                first_name: reservationFound.first_name,
+                last_name: reservationFound.last_name,
+                mobile_number: reservationFound.mobile_number,
+                reservation_date: dateToString,
+                reservation_time: reservationFound.reservation_time,
+                people: reservationFound.people,
+            })
         }
-
-        setFormData({
-            reservation_id: reservationFound.reservation_id,
-            first_name: reservationFound.first_name,
-            last_name: reservationFound.last_name,
-            mobile_number: reservationFound.mobile_number,
-            reservation_date: reservationFound.reservation_date,
-            reservation_time: reservationFound.reservation_time,
-            people: reservationFound.people,
-        })
-    }
+    }, [edit, reservation_id, reservations])
 
     // validating if the date and time is not a day in the past, or on a Tuesday
     function validDate(errorFound) {
@@ -63,9 +68,20 @@ function NewReservation({ edit, reservations}) {
 
         return errorFound.length === 0;
     }
+
+    //validate given fields
+    function validFields(errorFound) {
+        for (let field in formData) {
+            if (formData[field] === "") {
+                errorFound.push({message: `${field.split("_").join(" ")} cannot be left blank.`})
+            }
+        }
+
+        return errorFound.length === 0
+    }
     
     function changeHandler({target}) {
-        setFormData({...formData, [target.name]: target.value});
+        setFormData({...formData, [target.name]: target.name === "people" ? Number(target.value) : target.value});
     }
     
     function submitHandler(event) {
@@ -74,10 +90,18 @@ function NewReservation({ edit, reservations}) {
         
         const errorFound = [];
         
-        if (validDate(errorFound)) {
-            createReservation(formData, abortController.signal)
-                .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
-                .catch(setApiError);
+        if (validDate(errorFound) && validFields(errorFound)) {
+            if (edit) {
+                editReservation(reservation_id, formData, abortController.signal)
+                    .then(reloadDashboard)
+                    .then(() => history.goBack())
+                    .catch(setApiError);
+            } else {
+                createReservation(formData, abortController.signal)
+                    .then(reloadDashboard)
+                    .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
+                    .catch(setApiError);
+            }
         }
 
         setError(errorFound);
@@ -102,7 +126,7 @@ function NewReservation({ edit, reservations}) {
             <input name="last_name" id="last_name" type="text" onChange={changeHandler} value={formData.last_name} required />
 
             <label htmlFor="mobile_number">Mobile Number</label>
-            <input name="mobile_number" id="mobile_number" type="tel" onChange={changeHandler} value={formData.mobile_number} required />
+            <input name="mobile_number" id="mobile_number" type="text" onChange={changeHandler} value={formData.mobile_number} required />
 
             <label htmlFor="reservation_date">Reservation Date</label>
             <input name="reservation_date" id="reservation_date" type="date" onChange={changeHandler} value={formData.reservation_date} required />

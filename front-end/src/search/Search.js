@@ -29,7 +29,9 @@ function Search() {
     const searchResults = () => {
         return reservations.length > 0 ? 
             reservations.map(reservation => <Reservations key={reservation.reservation_id} reservation={reservation} />) : 
-                <p>No reservations found</p>;
+                <tr> 
+                    <td>No reservations found</td>
+                </tr>
     }
 
     return (
@@ -61,7 +63,7 @@ function Search() {
                 </thead>
 
                 <tbody>
-                    {searchResults()}
+                        {searchResults()}
                 </tbody>
             </table>
         </div>

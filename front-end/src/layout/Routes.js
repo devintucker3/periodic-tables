@@ -62,19 +62,19 @@ function Routes() {
       </Route>
 
       <Route path="/reservations/new">
-        <NewReservation />
+        <NewReservation reloadDashboard={reloadDashboard} />
       </Route>
 
       <Route path="/reservations/:reservation_id/edit">
-        <NewReservation edit={true} reservations={reservations} />
+        <NewReservation edit={true} reservations={reservations} reloadDashboard={reloadDashboard} />
       </Route>
 
       <Route path="/reservations/:reservation_id/seat">
-        <SeatAtTable reservations={reservations} tables={tables} reloadDashboard={reloadDashboard} />
+        <SeatAtTable tables={tables} reloadDashboard={reloadDashboard} />
       </Route>
 
       <Route path="/tables/new">
-        <NewTable />
+        <NewTable reloadDashboard={reloadDashboard} />
       </Route>
 
       <Route path="/dashboard">

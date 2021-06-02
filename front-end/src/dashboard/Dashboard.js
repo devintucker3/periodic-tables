@@ -63,6 +63,8 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
             <th scope="col">People</th>
             <th scope="col">Status</th>
             <th scope="col">Table</th>
+            <th scope="col">Change Info</th>
+            <th scope="col">Cancellation</th>
           </tr>
         </thead>
 
@@ -84,6 +86,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
             <th scope="col">Table Name</th>
             <th scope="col">Capacity</th>
             <th scope="col">Status</th>
+            <th scope="col">Seated Party Id</th>
           </tr>
         </thead>
 

@@ -1,81 +1,134 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import ErrorAlert from "../layout/ErrorAlert";
+import {
+  updateReservation,
+  seatReservation,
+  listReservations,
+} from "../utils/api";
 
-function SeatAtTable({ reservations, tables }) {
-    const history = useHistory();
-    const {reservation_id} = useParams();
+function SeatAtTable({ tables, reloadDashboard }) {
+  const history = useHistory();
+  const { reservation_id } = useParams();
 
-    const [tableId, setTableId] = useState(0);
-    const [errors, setErrors] = useState([]);
+  const [table_id, setTableId] = useState(0);
+  const [errors, setErrors] = useState([]);
+  const [apiError, setApiError] = useState(null);
+  const [reservations, setReservations] = useState([]);
+  const [reservationsError, setReservationsError] = useState(null);
 
-    if (!tables || !reservations) return null;
+  useEffect(() => {
+    const abortController = new AbortController();
 
-    function validTableAndReservation() {
-        const errorFound = [];
+    setReservationsError(null);
 
-        const tableFound = tables.find(table => table.table_id === tableId);
-        const reservationFound = reservations.find(reservation => reservation.reservation_id === reservation_id);
+    listReservations(null, abortController.signal)
+      .then((reservations) =>
+        reservations.sort((a, b) =>
+          a.reservation_time < b.reservation_time ? -1 : 1
+        )
+      )
+      .then(setReservations)
+      .catch(setReservationsError);
 
-        if (!tableFound) {
-            errorFound.push("This table you selected does not exist.");
-        } else if (!reservationFound) {
-            errorFound.push("This reservation does not exist.")
-        } else {
-            if (tableFound.status === "occupied") {
-                errorFound.push("The table you selected is currently occupied.");
-            }
+    return () => abortController.abort();
+  }, []);
 
-            if (tableFound.capacity < reservationFound.people) {
-                errorFound.push(`The table you selected cannot seat ${reservationFound.people} people.`);
-            }
-        }
+  if (!tables || !reservations) return null;
 
-        setErrors(errorFound);
+  function validTableAndReservation() {
+    const errorFound = [];
 
-        return errorFound.length === 0;
+    const tableFound = tables.find(
+      (table) => table.table_id === Number(table_id)
+    );
+    const reservationFound = reservations.find(
+      (reservation) => reservation.reservation_id === reservation_id
+    );
+
+    if (!tableFound) {
+      errorFound.push("This table you selected does not exist.");
     }
 
-    function changeHandler({target}) {
-        setTableId(target.value);
+    if (!reservationFound) {
+      errorFound.push("This reservation does not exist.");
     }
 
-    function submitHandler(event) {
-        event.preventDefault();
-
-        if (validTableAndReservation()) {
-            history.push("/dashboard");
-        }
+    if (tableFound.status === "occupied") {
+      errorFound.push("The table you selected is currently occupied.");
     }
 
-    const listOfTables = () => {
-        return tables.map(table =>
-            <option value={table.table_id}>{table.table_name} - {table.capacity}</option>
-        );
+    if (tableFound.capacity < reservationFound.people) {
+      errorFound.push(
+        `The table you selected cannot seat ${reservationFound.people} people.`
+      );
     }
 
-    const errorList = () => {
-        return errors.map((error, index) => <ErrorAlert key={index} error={error} />)
+    setErrors(errorFound);
+
+    return errorFound.length === 0;
+  }
+
+  function changeHandler({ target }) {
+    setTableId(target.value);
+  }
+
+  function submitHandler(event) {
+    event.preventDefault();
+    const abortController = new AbortController();
+
+    if (validTableAndReservation()) {
+      seatReservation(reservation_id, table_id, abortController.signal)
+        .then(() =>
+          updateReservation(reservation_id, "seated", abortController.signal)
+        )
+        .then(reloadDashboard)
+        .then(() => history.push("/dashboard"))
+        .catch(setApiError);
     }
 
-	return (
-		<form>
-			{errorList()}
+    return () => abortController.abort();
+  }
 
-			<label htmlFor="table_id">Choose table:</label>
-			<select 
-				name="table_id" 
-				id="table_id"
-				value={tableId}
-				onChange={changeHandler}
-			>
-				{listOfTables()}
-			</select>
+  const listOfTables = () => {
+    return tables.map((table) => (
+      <option key={table.table_id} value={table.table_id}>
+        {table.table_name} - {table.capacity}
+      </option>
+    ));
+  };
 
-			<button type="submit" onClick={submitHandler}>Submit</button>
-			<button type="button" onClick={history.goBack}>Cancel</button>
-		</form>
-	);
+  const errorList = () => {
+    return errors.map((error, index) => (
+      <ErrorAlert key={index} error={error} />
+    ));
+  };
+
+  return (
+    <form>
+      {errorList()}
+      <ErrorAlert error={apiError} />
+      <ErrorAlert error={reservationsError} />
+
+      <label htmlFor="table_id">Choose table:</label>
+      <select
+        name="table_id"
+        id="table_id"
+        value={table_id}
+        onChange={changeHandler}
+      >
+        <option value={0}>Choose a table</option>
+        {listOfTables()}
+      </select>
+
+      <button type="submit" onClick={submitHandler}>
+        Submit
+      </button>
+      <button type="button" onClick={history.goBack}>
+        Cancel
+      </button>
+    </form>
+  );
 }
 
 export default SeatAtTable;

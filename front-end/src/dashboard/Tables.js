@@ -5,7 +5,7 @@ function Tables({ table, reloadDashboard }) {
     if (!table) return null;
 
     function finishHandler() {
-        if (window.confirm("Is this table rady to seat new guests? This cannot be undone.")) {
+        if (window.confirm("Is this table ready to seat new guests? This cannot be undone.")) {
             const abortController = new AbortController();
             const reservation_id = table.reservation_id;
 
@@ -24,7 +24,7 @@ function Tables({ table, reloadDashboard }) {
             <td>{table.table_name}</td>
             <td>{table.capacity}</td>
             <td data-table-id-status={table.table_id}>{table.status}</td>
-            <td>{table.reservation_id ? table.reservation_id : "--"}</td>
+            <td>{table.reservation_id ? table.reservation_id : ""}</td>
 
             {table.status === "occupied" && 
                 <td data-table-id-finish={table.table_id}>
