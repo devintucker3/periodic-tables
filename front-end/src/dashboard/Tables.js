@@ -19,8 +19,8 @@ function Tables({ table, setTables, reloadDashboard }) {
         <tr>
             <th scope="row">{table.table_id}</th>
 
-            <td>Table: {table.table_name}</td>
-            <td>Capacity: {table.capacity}</td>
+            <td>{table.table_name}</td>
+            <td>{table.capacity}</td>
             <td data-table-id-status={table.table_id}>{table.reservation_id ? "occupied" : "free"}</td>
             <td>{table.reservation_id ? table.reservation_id : ""}</td>
 

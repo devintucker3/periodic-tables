@@ -1,0 +1,21 @@
+
+.table-head {
+    background-color: tomato;
+}
+
+
+
+th, button, label, input, select {
+    font-size: x-small;
+}
+
+@media all and (min-width: 800px) {
+    
+    .table-head {
+        background-color: tomato;
+    }
+
+    th, button, label, input, select {
+        font-size: medium;
+    }
+}

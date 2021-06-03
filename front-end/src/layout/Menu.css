@@ -1,0 +1,17 @@
+.title {
+    font-size: large;
+}
+
+.nav-link {
+    font-size: medium;
+}
+
+@media all and (min-width: 800px) {
+    .title {
+        font-size: x-large;
+    }
+
+    .nav-link {
+        font-size: large;
+    }
+}

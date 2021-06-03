@@ -1,3 +1,9 @@
 td {
     font-size: xx-small;
 }
+
+@media all and (min-width: 800px) {
+    td {
+        font-size: small;
+    }
+}

@@ -135,8 +135,26 @@ describe("US-08 - Change an existing reservation - E2E", () => {
 
   describe("/reservations/:reservation_id/edit page", () => {
     beforeEach(async () => {
+      reservation = await createReservation({
+        first_name: "Change",
+        last_name: Date.now().toString(10),
+        mobile_number: "555-1616",
+        reservation_date: "2035-01-04",
+        reservation_time: "14:00",
+        people: 4,
+      });
+      page = await browser.newPage();
+      await page.setViewport({ width: 1920, height: 1080 });
+      page.on("console", onPageConsole);
+    });
+    
+    beforeEach(async () => {
       await page.goto(`${baseURL}/dashboard`, {
         waitUntil: "networkidle0",
+      });
+      await page.screenshot({
+        path: ".screenshots/us-08-edit-reservation-submit-after-2.png",
+        fullPage: true,
       });
       await page.goto(
         `${baseURL}/reservations/${reservation.reservation_id}/edit`,
@@ -176,6 +194,10 @@ describe("US-08 - Change an existing reservation - E2E", () => {
     test("filling and submitting form updates the reservation", async () => {
       console.log("log one")
       const firstNameInput = await page.$("input[name=first_name]");
+      await page.screenshot({
+        path: ".screenshots/us-08-edit-reservation-submit-after-1.png",
+        fullPage: true,
+      });
       await firstNameInput.click({ clickCount: 3 });
       await firstNameInput.type("John");
       console.log("log two")
