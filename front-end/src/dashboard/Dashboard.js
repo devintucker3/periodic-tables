@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import {previous, today, next} from "../utils/date-time";
 import Reservations from "./Reservations";
 import Tables from "./Tables";
+import "./Dashboard.css"
 
 /**
  * Defines the dashboard page.
@@ -11,7 +12,7 @@ import Tables from "./Tables";
  *  the date for which the user wants to view reservations.
  * @returns {JSX.Element}
  */
-function Dashboard({ date, reservations, reservationsError, tables, tableError, reloadDashboard }) {
+function Dashboard({ date, reservations, reservationsError, tables, tableError, reloadDashboard, setTables }) {
   const history = useHistory();
 
   function clickHandler({target}) {
@@ -40,7 +41,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
   };
 
   const tableList = () => {
-    return tables.map(table => <Tables key={table.table_id} table={table} reloadDashboard={reloadDashboard} />);
+    return tables.map(table => <Tables key={table.table_id} table={table} setTables={setTables} reloadDashboard={reloadDashboard} />);
   }
 
   return (
@@ -50,9 +51,9 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
         <h4 className="mb-0">Reservations for {date}</h4>
       </div>
       <ErrorAlert error={reservationsError} />
-
-      <table className="table">
-        <thead>
+    <div className="table-responsive-xl overflow">
+      <table className="table table-sm">
+        <thead className="table-head">
           <tr>
             <th scope="col">ID</th>
             <th scope="col">First Name</th>
@@ -64,7 +65,7 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
             <th scope="col">Status</th>
             <th scope="col">Table</th>
             <th scope="col">Change Info</th>
-            <th scope="col">Cancellation</th>
+            <th scope="col">Cancel</th>
           </tr>
         </thead>
 
@@ -72,15 +73,16 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
           {reservationList()}
         </tbody>
       </table>
+    </div>
 
       <div className="d-md-flex mb-3">
         <h4 className="mb-0">Tables</h4>
       </div>
 
       <ErrorAlert error={tableError} />
-
+    <div className="table-responsive-sm">
       <table className="table">
-        <thead>
+        <thead className="table-head">
           <tr>
             <th scope="col">ID</th>
             <th scope="col">Table Name</th>
@@ -94,10 +96,11 @@ function Dashboard({ date, reservations, reservationsError, tables, tableError, 
           {tableList()}
         </tbody>
       </table>
+    </div>
 
-      <button type="button" name="previous" onClick={clickHandler}>Previous</button>
-      <button type="button" name="today" onClick={clickHandler}>Today</button>
-      <button type="button" name="next" onClick={clickHandler}>Next</button>
+      <button className="mr-2" type="button" name="previous" onClick={clickHandler}>Previous</button>
+      <button className="mr-2" type="button" name="today" onClick={clickHandler}>Today</button>
+      <button className="mr-2" type="button" name="next" onClick={clickHandler}>Next</button>
       
     </main> 
   );

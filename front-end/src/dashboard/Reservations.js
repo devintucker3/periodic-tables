@@ -1,5 +1,6 @@
 import React from "react";
 import { updateReservation } from "../utils/api";
+import "./Reservations.css";
 
 function Reservations({ reservation, reloadDashboard }) {
   if (!reservation || reservation.status === "finished") return null;
@@ -35,7 +36,7 @@ function Reservations({ reservation, reloadDashboard }) {
       <td data-reservation-id-status={reservation.reservation_id}>
         {reservation.status}
       </td>
-      {reservation.status === "booked" && (
+      {reservation.status === "booked" ? (
         <>
           <td>
             <a href={`/reservations/${reservation.reservation_id}/seat`}>
@@ -57,7 +58,7 @@ function Reservations({ reservation, reloadDashboard }) {
             </button>
           </td>
         </>
-      )}
+      ) : null}
     </tr>
   );
 }

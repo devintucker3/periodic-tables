@@ -29,15 +29,14 @@ function NewReservation({ edit, reservations, reloadDashboard}) {
                 return <p>Only booked reservations can be edited.</p>
             }
 
-            const date = new Date(reservationFound.reservation_date);
-            const dateToString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getDate}`;
-            console.log(dateToString);
-    
+            // const date = new Date(reservationFound.reservation_date);
+            // const dateToString = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${date.getDay()}`;
+            // console.log(dateToString)
             setFormData({
                 first_name: reservationFound.first_name,
                 last_name: reservationFound.last_name,
                 mobile_number: reservationFound.mobile_number,
-                reservation_date: dateToString,
+                reservation_date: reservationFound.reservation_date,
                 reservation_time: reservationFound.reservation_time,
                 people: reservationFound.people,
             })
@@ -94,7 +93,7 @@ function NewReservation({ edit, reservations, reloadDashboard}) {
             if (edit) {
                 editReservation(reservation_id, formData, abortController.signal)
                     .then(reloadDashboard)
-                    .then(() => history.goBack())
+                    .then(() => history.push(`/dashboard?date=${formData.reservation_date}`))
                     .catch(setApiError);
             } else {
                 createReservation(formData, abortController.signal)
@@ -106,7 +105,7 @@ function NewReservation({ edit, reservations, reloadDashboard}) {
 
         setError(errorFound);
 
-        return () => abortController.signal;
+        return () => abortController.abort();
     }
 
     // iterating through errors to make a list
@@ -115,7 +114,7 @@ function NewReservation({ edit, reservations, reloadDashboard}) {
     }
 
     return (
-        <form>
+        <form onSubmit={submitHandler}>
             {errorList()}
             <ErrorAlert error={apiError} />
             

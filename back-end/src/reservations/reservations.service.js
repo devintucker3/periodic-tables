@@ -3,9 +3,10 @@ const knex = require("../db/connection");
 function list(date) {
     return knex("reservations")
         .select("*")
-        .whereNot("status", "finished")
         .andWhere("reservation_date", date)
-        .orderBy("reservation_time");
+        .whereNot("status", "finished")
+        .whereNot("status", "cancelled")
+        .orderBy("reservation_time", "asc");
 }
 
 function create(reservation) {
@@ -30,9 +31,10 @@ function update(reservation) {
 
 function updateStatus(reservation_id, status) {
     return knex("reservations")
-        .where("reservation_id", reservation_id)
-        .update({status: status})
-        .returning("status");
+        .where({reservation_id: reservation_id})
+        .update("status", status)
+        .returning("*")
+        .then(created => created[0]);
 }
 
 function search(mobile_number) {

@@ -1,0 +1,20 @@
+.overflow {
+    overflow-y: hidden;
+}
+
+.table-head {
+    background-color: tomato;
+}
+
+h1 {
+    text-align: center;
+}
+
+h4 {
+    text-align: center;
+    font-size: large;
+}
+
+th {
+    font-size: xx-small;
+}

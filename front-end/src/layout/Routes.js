@@ -25,26 +25,30 @@ function Routes() {
   const [reservationsError, setReservationsError] = useState(null);
   const [tables, setTables] = useState([]);
   const [tableError, setTableError] = useState(null);
+  
 
   useEffect(reloadDashboard, [date]);
 
+  useEffect(() => {
+    const abortController = new AbortController();
+
+    listReservations({date}, abortController.signal)
+      .then(setReservations)
+      .catch(setReservationsError)
+  }, [tables, date]);
+
   function reloadDashboard() {
     const abortController = new AbortController();
+    const abortControllerTwo = new AbortController();
 
     setReservationsError(null);
     setTableError(null);
 
-    listReservations({ date: date }, abortController.signal)
-      .then((reservations) =>
-        reservations.sort((a, b) =>
-          a.reservation_time < b.reservation_time ? -1 : 1
-        )
-      )
+    listReservations({ date }, abortController.signal)
       .then(setReservations)
       .catch(setReservationsError);
 
-    listTables(abortController.signal)
-      .then(tables => tables.sort((a, b) => a.table_id - b.table_id))
+    listTables(abortControllerTwo.signal)
       .then(setTables)
       .catch(setTableError);
 
@@ -85,6 +89,7 @@ function Routes() {
           tables={tables}
           tableError={tableError}
           reloadDashboard={reloadDashboard}
+          setTables={setTables}
         />
       </Route>
 

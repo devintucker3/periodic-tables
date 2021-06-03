@@ -5,12 +5,12 @@ async function list(req, res) {
   const { date, mobile_number } = req.query;
   if (date) {
     let data = await service.list(date);
-    return res.json({ data: data });
+    return res.json({ data: [...data] });
   }
   
   if (mobile_number) {
     let data = await service.search(mobile_number);
-    return res.json({ data: data });
+    return res.json({ data: [...data] });
   }
 }
 
@@ -32,7 +32,7 @@ async function checkReservationId(req, res, next) {
   }
 }
 
-async function checkProps(req, res, next) {
+async function validProps(req, res, next) {
   if (!req.body.data) return next({ status: 400, message: "Inputs missing" });
   const {
     first_name,
@@ -173,21 +173,21 @@ async function updateStatus(req, res) {
   const { reservation_id } = req.params;
   const status = req.body.data.status;
   const data = await service.updateStatus(reservation_id, status);
-  res.status(200).json({ data: { status: data[0] } });
+  res.status(200).json({ data: { status:  data.status} });
 }
 
 module.exports = {
   list: [asyncErrorBoundary(list)],
   read: [asyncErrorBoundary(checkReservationId), asyncErrorBoundary(read)],
   create: [
-    asyncErrorBoundary(checkProps),
+    asyncErrorBoundary(validProps),
     asyncErrorBoundary(validDate),
     asyncErrorBoundary(validTime),
     asyncErrorBoundary(create),
   ],
   update: [
     asyncErrorBoundary(checkReservationId),
-    asyncErrorBoundary(checkProps),
+    asyncErrorBoundary(validProps),
     asyncErrorBoundary(update),
   ],
   updateStatus: [
